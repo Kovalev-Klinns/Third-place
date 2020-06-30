@@ -1,39 +1,50 @@
 package com.epam.github.service;
 
 import com.epam.github.models.Issue;
+import com.epam.github.models.Project;
 import com.epam.github.models.Repository;
 import com.epam.github.models.User;
-import org.apache.http.HttpStatus;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 import static io.restassured.RestAssured.given;
 
-public class APIService {
+public class ApiService {
+    private final String baseApiUrl = PropertyReader.getBaseApiUrl();
     private User testUser = PropertyReader.getUserWithCredentialsFromProperty();
 
-    public void createEmptyRepository(Repository repository) {
-        given().auth()
-                .preemptive()
-                .basic(testUser.getUserName(), testUser.getUserPassword())
+    public Response createEmptyRepository(Repository repository) {
+        return getApiUserAuthentification()
                 .body(repository)
-                .post("https://api.github.com/user/repos").then().assertThat().statusCode(HttpStatus.SC_CREATED);
+                .post(getRequestUrl(DataFromProperty.API_CREATE_REPOSITORY, repository));
     }
 
-    public void deleteRepository(Repository repository) {
-        given().auth()
-                .preemptive()
-                .basic(testUser.getUserName(), testUser.getUserPassword())
-                .delete(String.format("https://api.github.com/repos/%s/%s", testUser.getUserName(), repository.getNameRepository()))
-                .then()
-                .assertThat()
-                .statusCode(204);
+    public Response deleteRepository(Repository repository) {
+        return getApiUserAuthentification()
+                .delete(getRequestUrl(DataFromProperty.API_DELETE_REPOSITORY, repository));
     }
 
-    public void createIssue(Repository repository, Issue issue) {
-        given().auth()
-                .preemptive()
-                .basic(testUser.getUserName(), testUser.getUserPassword())
+    public Response createProjectInRepository(Repository repository, Project project) {
+        return getApiUserAuthentification()
+                .body(project)
+                .header("Accept", "application/vnd.github.inertia-preview+json")
+                .post(getRequestUrl(DataFromProperty.API_CREATE_PROJECT_IN_REPOSITORY, repository));
+    }
+
+    public Response createIssueInRepository(Repository repository, Issue issue) {
+        return getApiUserAuthentification()
                 .body(issue)
-                .post(String.format("https://api.github.com/repos/%s/%s/issues", testUser.getUserName(), repository.getNameRepository()))
-                .then().assertThat().statusCode(HttpStatus.SC_CREATED);
+                .post(getRequestUrl(DataFromProperty.API_CREATE_ISSUE_IN_REPOSITORY, repository));
+    }
+
+    private RequestSpecification getApiUserAuthentification() {
+        return given().auth()
+                .preemptive()
+                .basic(testUser.getUserName(), testUser.getUserPassword());
+    }
+
+    private String getRequestUrl(DataFromProperty endPoint, Repository repository) {
+        return String.format(baseApiUrl + PropertyReader.getApiEndpoint(endPoint),
+                testUser.getUserName(), repository.getNameRepository());
     }
 }

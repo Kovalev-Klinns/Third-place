@@ -50,12 +50,10 @@ public class Repository {
         return nameRepository;
     }
 
-    @JsonGetter
     public String getDescription() {
         return description;
     }
 
-    @JsonGetter
     public String getHomepage() {
         return homepage;
     }
@@ -65,17 +63,14 @@ public class Repository {
         return privateChangeName;
     }
 
-    @JsonGetter
     public boolean getHas_issues() {
         return has_issues;
     }
 
-    @JsonGetter
     public boolean getHas_projects() {
         return has_projects;
     }
 
-    @JsonGetter
     public boolean getHas_wiki() {
         return has_wiki;
     }

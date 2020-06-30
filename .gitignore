@@ -14,5 +14,4 @@ test-output/
 
 #Properties Files
 src/test/resources/key.properties
-src/test/resources/reportportal.properties
 

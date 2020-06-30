@@ -1,5 +1,9 @@
 package com.epam.github.page;
 
+import com.epam.github.browser.Browser;
+import com.epam.github.models.Issue;
+import com.epam.github.util.ExplicitWait;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -17,11 +21,13 @@ public class MainPage extends BasePage {
     @FindBy(xpath = "//div[@class='container-lg px-2']")
     private WebElement errorMessage;
 
-    @FindBy(xpath = "/html/body/div[1]/header/div[6]/details/summary/span")
+    @FindBy(xpath = "//body//div[6]/details//span")
     private WebElement signPlusButton;
 
     @FindBy(xpath = "//a[@data-ga-click='Header, create new repository']")
     private WebElement newRepositoryButton;
+
+    private final String createdIssueLocator = "//a[@title='%s']";
 
     public LoginPage clickSignIn() {
         clickOnTheVisibleItem(signInButton);
@@ -38,8 +44,15 @@ public class MainPage extends BasePage {
     }
 
     public NewRepositoryPage clickNewRepository() {
+        Browser.getInstance().getDriver().navigate().refresh();
         clickOnTheVisibleItem(signPlusButton);
         clickOnTheVisibleItem(newRepositoryButton);
         return new NewRepositoryPage();
+    }
+
+    public IssuePage openCreatedIssue(Issue issue) {
+        //clickOnTheVisibleItem(Browser.getInstance().getDriver().findElement(By.xpath(String.format(createdIssueLocator, issue.getTitle()))));
+        clickOnTheVisibleByLocatorItem(By.xpath(String.format(createdIssueLocator, issue.getTitle())));
+        return new IssuePage();
     }
 }

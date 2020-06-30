@@ -3,6 +3,7 @@ package com.epam.github.util;
 import com.epam.github.service.DataFromProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -19,10 +20,16 @@ public class Cryptor {
     private static Logger log = LogManager.getRootLogger();
     private static Path keyPropertyPath = Paths.get("src", "test", "resources", "key.properties");
 
-    public static String encrypt(String seed, String cleartext) throws Exception {
-        byte[] rawKey = getRawKey(seed.getBytes());
-        byte[] result = encrypt(rawKey, cleartext.getBytes());
-        return toHex(result);
+    public static String encrypt(String seed, String cleartext) {
+        try {
+            byte[] rawKey = getRawKey(seed.getBytes());
+            byte[] result = encrypt(rawKey, cleartext.getBytes());
+            return toHex(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Failed to encrypt password: " + e.getLocalizedMessage());
+            return null;
+        }
     }
 
     public static String decrypt(String encrypted) {
@@ -33,10 +40,10 @@ public class Cryptor {
             byte[] result = decrypt(rawKey, enc);
             return new String(result);
         } catch (Exception e) {
-            log.error("Failed to decrypt password:" + e.getLocalizedMessage());
+            log.error("Failed to decrypt password: " + e.getLocalizedMessage());
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     private static byte[] getRawKey(byte[] seed) throws Exception {
